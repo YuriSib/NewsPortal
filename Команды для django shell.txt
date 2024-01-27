@@ -1,0 +1,78 @@
+from news.models import Author, Category, Post, PostCategory, Comment
+from django.contrib.auth.models import User
+from django.db.models import Sum
+from datetime import datetime
+
+user1 = User.objects.create(username='user1', password='password')
+user2 = User.objects.create(username='user2', password='password')
+    #создание объекта встроенной модели User
+
+author1 = Author.objects.create(user_id=1)
+author2 = Author.objects.create(user_id=2)
+    #создание объекта модели Author, ссылающейся на User
+
+category1 = Category.objects.create(category_name='Категория 1')
+category2 = Category.objects.create(category_name='Категория 2')
+category3 = Category.objects.create(category_name='Категория 3')
+category4 = Category.objects.create(category_name='Категория 4')
+    #создание объекта модели Category
+
+article1 = Post.objects.create(author_id=2, write_type='AR', title='Статья 1', content='Это статья 1')
+article2 = Post.objects.create(author_id=2, write_type='AR', title='Статья 2', content='Это статья 2')
+    создание объекта модели Post типа Статья
+news1 = Post.objects.create(author_id=1, write_type='NE', title='Новость 1', content='Это новость 1')
+    #создание объекта модели Post типа Новость
+
+PostCategory.objects.create(post_id=1, category_id=1)
+PostCategory.objects.create(post_id=1, category_id=2)
+PostCategory.objects.create(post_id=2, category_id=2)
+PostCategory.objects.create(post_id=2, category_id=3)
+PostCategory.objects.create(post_id=3, category_id=1)
+PostCategory.objects.create(post_id=3, category_id=3)
+    #создание объекта PostCategory в промежуточной таблице "много-ко-многу"
+
+comment1 = Comment.objects.create(post_id=1, user_id=1, text='Комментарий 1')
+comment2 = Comment.objects.create(post_id=2, user_id=1, text='Комментарий 2')
+comment3 = Comment.objects.create(post_id=3, user_id=2, text='Комментарий 3')
+comment4 = Comment.objects.create(post_id=3, user_id=2, text='Комментарий 4')
+    #создание объекта Comment
+
+comment1.dislike()
+comment2.like()
+article1.like()
+article2.dislike()
+news1.like()
+    #ставим лайки и дизлайки
+
+author1.update_rating()
+author2.update_rating()
+    #обновляем рейтинг пользователей
+
+best_author = Author.objects.all().order_by('-rating')[0]
+username = User.objects.get(pk=best_author.user_id).username
+rating = best_author.rating
+print(f'Username: {username}; Rating: {rating}')
+    #выводим ник и рейтинг лучшего пользователя
+
+best_article = Post.objects.filter(write_type='AR').order_by('-rating')[0]
+date_create = best_article.time_create.date()
+username_best_article_author = User.objects.get(pk=best_article.author.user_id).username
+best_article_rating = best_article.rating
+best_article_title = best_article.title
+best_article_preview = best_article.preview()
+print(f'{date_create} {username_best_article_author} выпустил статью с рейтингом - {best_article_rating}. Заголовок - {best_article_title}, превью - {best_article_preview}')
+    #выводим дату добавления, username автора, рейтинг, заголовок и превью лучшей статьи
+
+best_article_comments = Comment.objects.filter(post_id=best_article.id)
+dirty_comments_list = Comment.objects.filter(post_id=best_article.id).values('comment_time', 'user', 'rating', 'text')
+cnt = 1
+for dict_ in dirty_comments_list:
+    comment_date = dict_['comment_time'].date()
+    comment_user_name = User.objects.get(pk=dict_['user'])
+    comment_rating = dict_['rating']
+    comment_text = dict_['text']
+    print(f'Комментарий {cnt} - Дата: {comment_date}; пользователь: {comment_user_name}, рейтинг: {comment_rating}, текст: {comment_text}')
+    cnt += 1
+    #выводим все комментарии (дата, пользователь, рейтинг, текст) к статье
+
+

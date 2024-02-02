@@ -58,6 +58,9 @@ class Post(models.Model):
         text = str(self.content)
         return text[:124] + '...'
 
+    def __str__(self):
+        return f'{self.title}: {self.content[:50]}'
+
 
 class PostCategory(models.Model):
     post = models.ForeignKey('Post', on_delete=models.CASCADE)

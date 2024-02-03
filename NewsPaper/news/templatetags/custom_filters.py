@@ -1,12 +1,20 @@
 from django import template
 
 
+class CensorException(Exception):
+    def __init__(self, message="Фильтр censor должен использоваться только со строковым типом данных!"):
+        self.message = message
+        super().__init__(self.message)
+
+
 register = template.Library()
 
 
 # Изобрел велосипед)
 @register.filter()
 def censor(value: str):
+    if type(value) != str:
+        raise CensorException(f"Значение принимает не допустимый тип ({type(value)})!")
     censored_words = ('редиска', 'баклажан', 'кабачок', 'огурец', 'редька')
     words = value.split(' ')
     idx = 0

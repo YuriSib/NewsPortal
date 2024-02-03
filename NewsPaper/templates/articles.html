@@ -3,21 +3,21 @@
 {% load custom_filters %}
 
 {% block title %}
-Новости
+Статьи
 {% endblock title %}
 
 {% block content %}
-    <h1>Все новости</h1>
-    <h3>Всего новостей: {{ News|length }}</h3>
+    <h1>Все статьи</h1>
+    <h3>Всего статей: {{ Articles|length }}</h3>
 
     <hr>
-    {% if News %}
+    {% if Articles %}
         <!-- Для каждого товара будете генерироваться новая строчка -->
-        {% for a_news in News %}
+        {% for article in Articles %}
             <!-- Здесь можно получать доступ к полям объекта модели. -->
-            <h5><a href="http://127.0.0.1:8000/news/{{ a_news.id }}">{{ a_news.title|censor }}</a></h5>
-            {{ a_news.time_create|date:'d M Y' }}
-            {{ a_news.content|censor|truncatewords:20 }}
+            <h5><a href="http://127.0.0.1:8000/articles/{{ article.id }}">{{ article.title|censor }}</a></h5>
+            {{ article.time_create|date:'d M Y' }}
+            {{ article.content|censor|truncatewords:20 }}
         {% endfor %}
     {% else %}
         <!-- Если товаров нет, говорим, что товаров нет ;) -->

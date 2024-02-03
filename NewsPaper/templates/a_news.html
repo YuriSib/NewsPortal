@@ -1,5 +1,7 @@
 {% extends 'flatpages/default.html' %}
 
+{% load custom_filters %}
+
 <!-- Название у нас будет products -->
 {% block title %}
 A news
@@ -8,5 +10,8 @@ A news
 <!-- В контенте на странице мы выводим все товары -->
 {% block content %}
 <h1>Новость</h1>
-{{ A_news }}
+<h4>{{ A_news.title|censor }}</h4>
+<h6>{{ A_news.time_create|date:'d M Y' }}</h6>
+<br>{{ A_news.content|censor }}
+
 {% endblock content %}

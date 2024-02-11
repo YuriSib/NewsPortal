@@ -8,11 +8,11 @@
 
 {% block content %}
     <h1>Все новости</h1>
-    <h3>Всего новостей: {{ Posts|length }}</h3>
+    <h3>Всего новостей: {{ News|length }}</h3>
     <hr>
-    {% if Posts %}
+    {% if News %}
         <!-- Для каждого товара будете генерироваться новая строчка -->
-        {% for post in Posts %}
+        {% for post in News %}
             <!-- Здесь можно получать доступ к полям объекта модели. -->
             <h5><a href="http://127.0.0.1:8000/news/{{ post.id }}">{{ post.title|censor }}</a></h5>
             {{ post.time_create|date:'d M Y' }}

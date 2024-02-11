@@ -11,8 +11,8 @@ News
 {% block content %}
 <h1>Новость</h1>
 
-<h4>{{ Post.title|censor }}</h4>
-<h6>{{ Post.time_create|date:'d M Y' }}</h6>
-<br>{{ Post.content|censor }}
+<h4>{{ A_news.title|censor }}</h4>
+<h6>{{ A_news.time_create|date:'d M Y' }}</h6>
+<br>{{ A_news.content|censor }}
 
 {% endblock content %}

@@ -1,0 +1,59 @@
+{% extends 'flatpages/default.html' %}
+
+{% load custom_filters %}
+{% load custom_tags %}
+
+{% block title %}
+Search
+{% endblock title %}
+
+{% block content %}
+    <h1>Поиск постов</h1>
+    <!--Добавляем форму, которая объединяет набор полей, которые будут отправляться в запросе-->
+    <form action="" method="get">
+        {% csrf_token %}
+    <!--        Переменная, которую мы передали через контекст, может сгенерировать нам форму с полями-->
+        {{ filterset.form.as_p }}
+    <!--        Добавим кнопку отправки данных формы-->
+        <input type="submit" value="Найти" />
+    </form>
+
+    <h3>Всего новостей: {{ Search|length }}</h3>
+    <hr>
+    {% if Search %}
+        <!-- Для каждого товара будете генерироваться новая строчка -->
+        {% for post in Search %}
+            <!-- Здесь можно получать доступ к полям объекта модели. -->
+            <h5><a href="http://127.0.0.1:8000/posts/{{ post.id }}">{{ post.title|censor }}</a></h5>
+            {{ post.time_create|date:'d M Y' }}
+            {{ post.content|censor|truncatewords:20 }}
+        {% endfor %}
+        <br>
+    {% else %}
+        <!-- Если товаров нет, говорим, что товаров нет ;) -->
+        <h2>Новостей пока нет!</h2>
+    {% endif %}
+
+
+    <!-- Добавляем пагинацию на страницу-->
+    <!--Информация о предыдущих страницах-->
+    {% if page_obj.has_previous %}
+        <a href="?{% url_replace page=1 %}">1</a>
+        {% if page_obj.previous_page_number != 1 %}
+        ...
+
+        <a href="?{% url_replace page=page_obj.previous_page_number %}">{{ page_obj.previous_page_number }}</a>
+        {% endif %}
+    {% endif %}
+
+    <!--Информация о текущей странице-->
+    {{ page_obj.number }}
+    <!--Информация о следующих страницах-->
+    {% if page_obj.has_next %}
+        <a href="?{% url_replace page=page_obj.next_page_number %}">{{ page_obj.next_page_number }}</a>
+        {% if paginator.num_pages != page_obj.next_page_number %}
+            ...
+            <a href="?{% url_replace page=page_obj.paginator.num_pages %}">{{ page_obj.paginator.num_pages }}</a>
+        {% endif %}
+    {% endif %}
+{% endblock content %}

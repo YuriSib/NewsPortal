@@ -1,5 +1,7 @@
-from django_filters import FilterSet
+from django_filters import FilterSet, DateFilter, CharFilter, ModelChoiceFilter
 from .models import Post
+from django import forms
+from django.contrib.auth.models import User
 
 # Создаем свой набор фильтров для модели Product.
 # FilterSet, который мы наследуем,
@@ -7,6 +9,19 @@ from .models import Post
 
 
 class PostFilter(FilterSet):
+    # Для отображения календаря в фильтре, будем использовать класс DateFilter
+    start_date = DateFilter(
+        field_name='time_create',
+        lookup_expr='gte',
+        widget=forms.DateInput(attrs={'type': 'date'}),
+        label='Дата публикации, с'
+    )
+    end_date = DateFilter(
+        field_name='time_create',
+        lookup_expr='lte',
+        widget=forms.DateInput(attrs={'type': 'date'}),
+        label='Дата публикации, до'
+    )
 
     class Meta:
         # В Meta классе мы должны указать Django модель,
@@ -19,6 +34,4 @@ class PostFilter(FilterSet):
             'title': ['icontains'],
             # поиск по id автора (нужно переделать на фильтрацию по username)
             'author': ['exact'],
-            # покажет объекты созданные позже указанной даты
-            'time_create': ['month__gt'],
         }

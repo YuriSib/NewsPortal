@@ -4,6 +4,7 @@ from .filters import PostFilter
 from .forms import PostForm
 from django.shortcuts import render, HttpResponseRedirect
 from django.urls import reverse_lazy
+from django.contrib.auth.mixins import LoginRequiredMixin
 
 
 class NewsList(ListView):
@@ -102,7 +103,7 @@ class NewsCreate(CreateView):
         return super().form_valid(form)
 
 
-class NewsEdit(UpdateView):
+class NewsEdit(LoginRequiredMixin, UpdateView):
     form_class = PostForm
     model = Post
     template_name = 'post_edit.html'
@@ -126,7 +127,7 @@ class ArticleCreate(CreateView):
         return super().form_valid(form)
 
 
-class ArticleEdit(UpdateView):
+class ArticleEdit(LoginRequiredMixin, UpdateView):
     form_class = PostForm
     model = Post
     template_name = 'post_edit.html'

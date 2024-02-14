@@ -24,7 +24,7 @@ Search
         <!-- Для каждой новости будете генерироваться новая строчка -->
         {% for post in Search %}
             <!-- Здесь можно получать доступ к полям объекта модели. -->
-            <h5><a href="http://127.0.0.1:8000/posts/{{ post.id }}">{{ post.title|censor }}</a></h5>
+            <h5><a href="http://127.0.0.1:8000/news/{{ post.id }}">{{ post.title|censor }}</a></h5>
             {{ post.time_create|date:'d M Y' }}
             {{ post.content|censor|truncatewords:20 }}
         {% endfor %}

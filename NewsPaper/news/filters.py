@@ -2,6 +2,7 @@ from django_filters import FilterSet, DateFilter, CharFilter, ModelChoiceFilter
 from .models import Post
 from django import forms
 from django.contrib.auth.models import User
+from django.db.models.query import QuerySet
 
 # Создаем свой набор фильтров для модели Product.
 # FilterSet, который мы наследуем,
@@ -22,6 +23,7 @@ class PostFilter(FilterSet):
         widget=forms.DateInput(attrs={'type': 'date'}),
         label='Дата публикации, до'
     )
+    title = CharFilter(lookup_expr='icontains', label='Заголовок')
 
     class Meta:
         # В Meta классе мы должны указать Django модель,
@@ -30,8 +32,7 @@ class PostFilter(FilterSet):
         # В fields мы описываем по каким полям модели
         # будет производиться фильтрация.
         fields = {
-            # поиск по названию
-            'title': ['icontains'],
             # поиск по id автора (нужно переделать на фильтрацию по username)
             'author': ['exact'],
         }
+

@@ -7,6 +7,8 @@ from .views import (
 
 
 urlpatterns = [
+   path('', NewsList.as_view()),
+
    path('news/', NewsList.as_view(), name='news_list'),
    path('news/<int:pk>', NewsDetail.as_view(), name='a_news'),
    path('articles/', ArticleList.as_view(), name='articles_list'),

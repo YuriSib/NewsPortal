@@ -25,17 +25,27 @@
               <div class="collapse navbar-collapse" id="navbarResponsive">
                   <ul class="navbar-nav ml-auto">
                       <li class="nav-item active">
-                          <a class="nav-link" href="#">Home
+                          <a class="nav-link" href="/">Home
                               <span class="sr-only">(current)</span>
                           </a>
                       </li>
-                      <li class="nav-item">
-                          <a class="nav-link" href="/about/">About</a>
+                  </ul>
+                  {% if not user.is_authenticated %}
+                  <ul class="navbar-nav ml-auto">
+                      <li class="nav-item active">
+                          <a class="nav-link" href="/sign/login">Войти</a>
                       </li>
-                      <li class="nav-item">
-                          <a class="nav-link" href="/contacts/">Contact</a>
+                      <li class="nav-item active">
+                          <a class="nav-link" href="/sign/signup/">Зарегистрироваться</a>
                       </li>
                   </ul>
+                  {% else %}
+                  <ul class="navbar-nav ml-auto">
+                      <li class="nav-item active">
+                          <a class="nav-link" href="{% url 'logout_confirm' %}">Выйти</a>
+                      </li>
+                  </ul>
+                  {% endif %}
               </div>
           </div>
         </nav>

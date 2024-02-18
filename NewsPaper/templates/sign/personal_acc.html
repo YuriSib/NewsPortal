@@ -1,0 +1,15 @@
+{% extends 'flatpages/default.html' %}
+
+{% block title %}
+Личный кабинет
+{% endblock title %}
+
+{% block content %}
+<h2>Страница авторизованного пользователя {{request.user.username}}</h2>
+<div>
+    <button> <a href="http://127.0.0.1:8000/sign/logout_confirm/">Выйти</a> </button>
+    {% if is_not_authors %}
+        <button> <a href="upgrade/"> Стать автором </a> </button>
+    {% endif %}
+</div>
+{% endblock content %}

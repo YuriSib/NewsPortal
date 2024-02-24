@@ -1,4 +1,4 @@
-from news.models import Author, Category, Post, PostCategory, Comment
+from news.models import Author, Category, Post, PostCategory, Comment, UserCategory
 from django.contrib.auth.models import User
 from django.db.models import Sum
 from datetime import datetime

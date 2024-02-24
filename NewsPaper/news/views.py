@@ -1,15 +1,15 @@
-from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView, FormView
-from .models import Post, UserCategory, PostCategory
+from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
+from .models import Post, UserCategory
 from django.contrib.auth.models import User
 from .filters import PostFilter
 from .forms import PostForm
-from django.shortcuts import render, HttpResponseRedirect
+from django.shortcuts import render
 from django.urls import reverse_lazy
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.core.mail import send_mail
 from django.template.loader import render_to_string
 from django.core.mail import EmailMultiAlternatives
-from .passwords import host_password, login
+from passwords import login
 
 
 class NewsList(ListView):
@@ -126,7 +126,7 @@ class NewsCreate(PermissionRequiredMixin, CreateView):
                     msg = EmailMultiAlternatives(
                         subject=f'Здравствуй, {user_name}. Новая статья в твоём любимом разделе!',
                         body=content,
-                        from_email='project-corp@yandex.ru',
+                        from_email=f'{login}@yandex.ru',
                         to=[email],
                     )
                     msg.attach_alternative(html_content, "text/html")
@@ -195,7 +195,7 @@ class SubscribersView(CreateView):
             send_mail(
                 subject='Подписка на категорию',
                 message=f'Вы подписались на новости из категории { form.instance.category }',
-                from_email=settings.DEFAULT_FROM_EMAIL,
+                from_email=f'{login}@yandex.ru',
                 recipient_list=[self.request.user.email],
             )
             return super().form_valid(form)

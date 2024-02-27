@@ -1,17 +1,30 @@
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
-from .models import Post, UserCategory, Category
 from django.contrib.auth.models import User
-from .filters import PostFilter
-from .forms import PostForm
 from django.shortcuts import render
 from django.urls import reverse_lazy
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.contrib.auth.decorators import login_required
-from django.core.mail import send_mail
 from django.template.loader import render_to_string
-from django.core.mail import EmailMultiAlternatives
+from django.core.mail import EmailMultiAlternatives, mail_managers, send_mail
 from django.shortcuts import get_object_or_404
-from NewsPaper.settings import SITE_URL, EMAIL_HOST_USER
+
+from NewsPaper.settings import EMAIL_HOST_USER
+from .models import Post, UserCategory, Category
+from .filters import PostFilter
+from .forms import PostForm
+
+from django.db.models.signals import post_save
+
+
+def notify_about_new_post(sender, instance, created, **kwargs):
+    mail_managers(
+        subject=f'{instance.author} {instance.title}',
+        message=instance.content,
+    )
+    print(f'{instance.author} {instance.title}')
+
+
+post_save.connect(notify_about_new_post, sender=Post)
 
 
 class NewsList(ListView):

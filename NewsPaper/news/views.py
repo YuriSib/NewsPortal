@@ -1,15 +1,17 @@
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
-from .models import Post, UserCategory
+from .models import Post, UserCategory, Category
 from django.contrib.auth.models import User
 from .filters import PostFilter
 from .forms import PostForm
 from django.shortcuts import render
 from django.urls import reverse_lazy
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
+from django.contrib.auth.decorators import login_required
 from django.core.mail import send_mail
 from django.template.loader import render_to_string
 from django.core.mail import EmailMultiAlternatives
-from passwords import login
+from django.shortcuts import get_object_or_404
+from NewsPaper.settings import SITE_URL, EMAIL_HOST_USER
 
 
 class NewsList(ListView):
@@ -20,15 +22,18 @@ class NewsList(ListView):
 
     template_name = 'news.html'
     context_object_name = 'News'
-    paginate_by = 2
+    paginate_by = 5
 
     def get_queryset(self):
+        # self.category = get_object_or_404(Category, id=self.kwargs['pk'])
         queryset = Post.objects.filter(write_type='NE').order_by('-time_create')
         return queryset
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['is_not_authors'] = not self.request.user.groups.filter(name='authors').exists()
+        # context['category'] = self.category
+
         return context
 
 
@@ -107,31 +112,32 @@ class NewsCreate(PermissionRequiredMixin, CreateView):
 
         category_id = form.cleaned_data['category']
         content = form.cleaned_data['content']
+        title = form.cleaned_data['title']
+
         subscriber_id_list = list(UserCategory.objects.filter(category__id__in=category_id).values_list('user', flat=True))
-        # subscriber_id_list = [UserCategory.objects.get(category_id=category_id).user_id]
-        # subscriber_id_list = [11]
-
-        html_content = render_to_string(
-            'a_news.html',
-            {
-                'post': post,
-            }
-        )
-
         if subscriber_id_list:
             for id_ in subscriber_id_list:
                 user_name = User.objects.get(id=id_).username
                 email = User.objects.get(id=id_).email
+
                 if email:
+                    html_content = render_to_string(
+                        'a_news.html',
+                        {
+                            'username': user_name,
+                            'text': content,
+                            # 'link': f"{SITE_URL}/news/{pk}"
+                        }
+                    )
+
                     msg = EmailMultiAlternatives(
-                        subject=f'Здравствуй, {user_name}. Новая статья в твоём любимом разделе!',
-                        body=content,
-                        from_email=f'{login}@yandex.ru',
+                        subject=title,
+                        body='',
+                        from_email=f'{EMAIL_HOST_USER}@yandex.ru',
                         to=[email],
                     )
                     msg.attach_alternative(html_content, "text/html")
                     msg.send()
-
         return super().form_valid(form)
 
 
@@ -177,26 +183,30 @@ class ArticleDelete(PermissionRequiredMixin, DeleteView):
     success_url = reverse_lazy('news_list')
 
 
-class SubscribersView(CreateView):
-    model = UserCategory
-    # form_class = SubscribersForm
-    template_name = 'subscribe.html'
-    success_url = '/subscribe/'
+class CategoryListView(NewsList):
+    model = Post
+    template_name = 'news/category_list.html'
+    context_object_name = 'category_news_list'
 
-    def form_valid(self, form):
-        subscribers = form.save(commit=False)
-        is_subscribed = UserCategory.objects.filter(category=form.instance.category, user=self.request.user).exists()
-        self.request.session['subscriber_category'] = f'Вы успешно подписались на категорию "{form.instance.category.name}"'
-        self.request.session['is_subscribed'] = is_subscribed
-        if not is_subscribed:
-            if self.request.method == 'POST':
-                form.instance.user = self.request.user
-            subscribers.save()
-            send_mail(
-                subject='Подписка на категорию',
-                message=f'Вы подписались на новости из категории { form.instance.category }',
-                from_email=f'{login}@yandex.ru',
-                recipient_list=[self.request.user.email],
-            )
-            return super().form_valid(form)
-        return render(self.request, 'subscribe.html', context={'message': f'Вы уже подписаны на данную категорию "{form.instance.category}"', 'form': form})
+    def get_queryset(self):
+        self.category = get_object_or_404(Category, id=self.kwargs['pk'])
+        queryset = Post.objects.filter(category=self.category)#.order('-created_at')
+        return queryset
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['is_not_subscriber'] = self.request.user not in self.category.subscribers.all()
+        # context['is_not_subscriber'] = self.request.user not in list(UserCategory.objects.filter(category=self.category).values_list('user', flat=True))
+        context['category'] = self.category
+        return context
+
+
+@login_required
+def subscribe(request, pk):
+    user = request.user
+    category = Category.objects.get(id=pk)
+    category.subscribers.add(user)
+    UserCategory.objects.create(category=category, user=user)
+
+    message = 'Вы успешно подписались на рассылку новостей категории'
+    return render(request, 'news/subscribe.html', {'category': category, 'message': message})

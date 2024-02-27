@@ -7,22 +7,23 @@
 {% endblock title %}
 
 {% block content %}
-    <h1>Все новости</h1>
-    <h3>Новостей на странице: {{ News|length }}</h3>
+    {% if is_not_subscriber %}
+        <p class="text-center"><a href="{% url 'subscribe' category.id %}" class="btn btn-secondary btn-sm">Подписаться</a></p>
+    {% endif %}
+    <h1>Новости {{ category }}</h1>
+    <h5>Новостей на странице: {{ category_news_list|length }}</h5>
     <hr>
-    {% if News %}
+    {% if category_news_list %}
 
-        {% for post in category_news_list.all %}
-            <a href="{% url 'category_list' category.id %}">{{ category }}</a>
-        {% endfor %}
+<!--        {% for post in category_news_list.all %}-->
+<!--            <a href="{% url 'category_list' category.id %}">{{ category }}</a>-->
+<!--        {% endfor %}-->
 
         <!-- Для каждого товара будете генерироваться новая строчка -->
-        {% for post in News %}
+        {% for post in category_news_list %}
             <!-- Здесь можно получать доступ к полям объекта модели. -->
             <h5><a href="http://127.0.0.1:8000/news/{{ post.id }}">{{ post.title|censor }}</a></h5>
-            <h6>{% for category in post.category.all %}
-                    <a href="{% url 'category_list' category.id %}" style="...">"{{ category }}"</a>
-                {% endfor %}</h6>
+            <h6><a href="{% url 'category_list' category.id %}">{{ category }}</a></h6>
             {{ post.time_create|date:'d M Y' }}
             {{ post.content|censor|truncatewords:20 }}
         {% endfor %}

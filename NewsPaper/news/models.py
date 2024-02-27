@@ -24,8 +24,10 @@ class Author(models.Model):
         return f'{self.user}'
 
 
+# subscribers
 class Category(models.Model):
     category_name = models.CharField(max_length=100, unique=True)
+    subscribers = models.ManyToManyField(User, blank=True, related_name='categories')
 
     def __str__(self):
         return f'{self.category_name}'
@@ -48,7 +50,11 @@ class Post(models.Model):
     content = models.CharField(max_length=2500, default='default content', verbose_name='Контент')
     rating = models.IntegerField(default=0)
 
-    category = models.ManyToManyField('Category', through='PostCategory')
+    category = models.ManyToManyField('Category', through='PostCategory', verbose_name='Категории')
+
+    class Meta:
+        verbose_name = "Категория"
+        verbose_name_plural = "Категория"
 
     def like(self):
         # post_ = Post.objects.get(pk=self.post_id)
@@ -89,6 +95,7 @@ class Comment(models.Model):
         self.save()
 
 
+# subscribers
 class UserCategory(models.Model):
     category = models.ForeignKey('Category', on_delete=models.CASCADE)
     user = models.ForeignKey(User, on_delete=models.CASCADE)

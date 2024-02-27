@@ -13,7 +13,7 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 from pathlib import Path
 import os
 
-from passwords import host_password, login
+from sign.passwords import host_password, login
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -41,7 +41,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
-    'news',
+    # 'appointment',
+    'news.apps.NewsConfig',
     'django.contrib.sites',
     'django.contrib.flatpages',
     'django_filters',
@@ -53,6 +54,8 @@ INSTALLED_APPS = [
     'allauth.socialaccount.providers.google',
 
 ]
+
+DEFAULT_FROM_EMAIL = f'{login}@yandex.ru'
 
 SITE_ID = 1
 
@@ -144,6 +147,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
 
 STATIC_URL = 'static/'
+SITE_URL = 'http://127.0.01:8000'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field

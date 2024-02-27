@@ -12,6 +12,9 @@ News
 <h1>Новость</h1>
 
 <h4>{{ A_news.title|censor }}</h4>
+{% for category in A_news.category.all %}
+    <a href="{% url 'category_list' category.id %}" style="...">"{{ category }}"</a>
+{% endfor %}
 <h6>{{ A_news.time_create|date:'d M Y' }}</h6>
 <br>{{ A_news.content|censor }}
 

@@ -122,7 +122,7 @@ class NewsCreate(PermissionRequiredMixin, CreateView):
 
                 if email:
                     html_content = render_to_string(
-                        'a_news.html',
+                        'post_created_email.html',
                         {
                             'username': user_name,
                             'text': content,

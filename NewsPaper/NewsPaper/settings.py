@@ -41,7 +41,6 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
-    # 'appointment',
     'news.apps.NewsConfig',
     'django.contrib.sites',
     'django.contrib.flatpages',
@@ -50,12 +49,9 @@ INSTALLED_APPS = [
     'allauth',
     'allauth.account',
     'allauth.socialaccount',
-    # ... include the providers you want to enable:
     'allauth.socialaccount.providers.google',
 
 ]
-
-DEFAULT_FROM_EMAIL = f'{login}@yandex.ru'
 
 SITE_ID = 1
 
@@ -90,13 +86,13 @@ TEMPLATES = [
     },
 ]
 
-AUTHENTICATION_BACKENDS = [
+AUTHENTICATION_BACKENDS = (
     # Needed to login by username in Django admin, regardless of `allauth`
     'django.contrib.auth.backends.ModelBackend',
 
     # `allauth` specific authentication methods, such as login by e-mail
     'allauth.account.auth_backends.AuthenticationBackend',
-]
+)
 
 WSGI_APPLICATION = 'NewsPaper.wsgi.application'
 
@@ -166,11 +162,15 @@ ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_UNIQUE_EMAIL = True
 ACCOUNT_USERNAME_REQUIRED = False
 ACCOUNT_AUTHENTICATION_METHOD = 'email'
-ACCOUNT_EMAIL_VERIFICATION = 'none'
 ACCOUNT_FORMS = {'signup': 'sign.models.BasicSignupForm'}
+ACCOUNT_EMAIL_VERIFICATION = "mandatory"
+    # Для отображения сообщений в терминале, без отправления их на почту
+# EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 EMAIL_HOST = 'smtp.yandex.ru'
 EMAIL_PORT = 465
 EMAIL_HOST_USER = login
 EMAIL_HOST_PASSWORD = host_password
 EMAIL_USE_SSL = True
+DEFAULT_FROM_EMAIL = f"{EMAIL_HOST_USER}@yandex.ru"
+

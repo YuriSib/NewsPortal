@@ -1,3 +1,6 @@
+import datetime
+from datetime import date
+
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from django.contrib.auth.models import User
 from django.shortcuts import render
@@ -9,22 +12,22 @@ from django.core.mail import EmailMultiAlternatives, mail_managers, send_mail
 from django.shortcuts import get_object_or_404
 
 from NewsPaper.settings import EMAIL_HOST_USER
-from .models import Post, UserCategory, Category
+from .models import Post, UserCategory, Category, Author
 from .filters import PostFilter
 from .forms import PostForm
 
 from django.db.models.signals import post_save
 
 
-def notify_about_new_post(sender, instance, created, **kwargs):
-    mail_managers(
-        subject=f'{instance.author} {instance.title}',
-        message=instance.content,
-    )
-    print(f'{instance.author} {instance.title}')
-
-
-post_save.connect(notify_about_new_post, sender=Post)
+# def notify_about_new_post(sender, instance, created, **kwargs):
+#     mail_managers(
+#         subject=f'{instance.author} {instance.title}',
+#         message=instance.content,
+#     )
+#     print(f'{instance.author} {instance.title}')
+#
+#
+# post_save.connect(notify_about_new_post, sender=Post)
 
 
 class NewsList(ListView):
@@ -119,38 +122,16 @@ class NewsCreate(PermissionRequiredMixin, CreateView):
         form.instance.write_type = 'NE'
         post = form.save(commit=False)
         post.author = self.request.user.author
+
+        user_id = self.request.user.id
+        author_id = Author.objects.get(user=user_id)
+        date_create = date.today()
+        date_list = [dt.strftime("%Y-%m-%d") for dt in Post.objects.filter(author=author_id).values_list('time_create', flat=True)]
+        print(f'post = {post}, author_id = {author_id}, date_create = {date_create}, date_list = {date_list}')
+        if date_list.count(date_create) >= 4:
+
+
         post.save()
-
-        super().form_valid(form)
-
-        category_id = form.cleaned_data['category']
-        content = form.cleaned_data['content']
-        title = form.cleaned_data['title']
-
-        subscriber_id_list = list(UserCategory.objects.filter(category__id__in=category_id).values_list('user', flat=True))
-        if subscriber_id_list:
-            for id_ in subscriber_id_list:
-                user_name = User.objects.get(id=id_).username
-                email = User.objects.get(id=id_).email
-
-                if email:
-                    html_content = render_to_string(
-                        'post_created_email.html',
-                        {
-                            'username': user_name,
-                            'text': content,
-                            # 'link': f"{SITE_URL}/news/{pk}"
-                        }
-                    )
-
-                    msg = EmailMultiAlternatives(
-                        subject=title,
-                        body='',
-                        from_email=f'{EMAIL_HOST_USER}@yandex.ru',
-                        to=[email],
-                    )
-                    msg.attach_alternative(html_content, "text/html")
-                    msg.send()
         return super().form_valid(form)
 
 

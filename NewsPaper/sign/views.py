@@ -31,4 +31,4 @@ def upgrade_me(request):
     if not request.user.groups.filter(name='authors').exists():
         premium_group.user_set.add(user)
         Author.objects.create(user=user)
-    return redirect('/')
+    return redirect('to_many_post')

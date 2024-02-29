@@ -45,3 +45,5 @@ def notify_about_new_post(sender, instance, **kwargs):
         print(f'subscribers_emails - {subscribers_emails}')
 
         send_notifications(preview=instance.preview, pk=instance.pk, title=instance.title, subscribers=subscribers_emails)
+
+

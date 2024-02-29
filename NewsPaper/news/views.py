@@ -10,6 +10,7 @@ from django.contrib.auth.decorators import login_required
 from django.template.loader import render_to_string
 from django.core.mail import EmailMultiAlternatives, mail_managers, send_mail
 from django.shortcuts import get_object_or_404
+from django.shortcuts import redirect
 
 from NewsPaper.settings import EMAIL_HOST_USER
 from .models import Post, UserCategory, Category, Author
@@ -128,11 +129,15 @@ class NewsCreate(PermissionRequiredMixin, CreateView):
         date_create = date.today()
         date_list = [dt.strftime("%Y-%m-%d") for dt in Post.objects.filter(author=author_id).values_list('time_create', flat=True)]
         print(f'post = {post}, author_id = {author_id}, date_create = {date_create}, date_list = {date_list}')
-        if date_list.count(date_create) >= 4:
-
-
-        post.save()
-        return super().form_valid(form)
+        print(f'Количество публикаций пользователя {self.request.user} - {date_list.count(date_list[-1])}')
+        if date_list.count(date_list[-1]) <= 3:
+            post.save()
+            print('Пост сохранен')
+            return super().form_valid(form)
+        else:
+            print('Пост не сохранен')
+            print(self.get_context_data(form=form))
+            return redirect('/to_many_post/')
 
 
 class NewsEdit(PermissionRequiredMixin, LoginRequiredMixin, UpdateView):
@@ -204,3 +209,7 @@ def subscribe(request, pk):
 
     message = 'Вы успешно подписались на рассылку новостей категории'
     return render(request, 'news/subscribe.html', {'category': category, 'message': message})
+
+
+def to_many_post(request):
+    return render(request, 'news/to_many_post.html')

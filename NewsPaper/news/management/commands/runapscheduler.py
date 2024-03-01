@@ -1,20 +1,31 @@
 import logging
+import datetime
 
 from django.conf import settings
 
+from django.utils import timezone
 from apscheduler.schedulers.blocking import BlockingScheduler
 from apscheduler.triggers.cron import CronTrigger
 from django.core.management.base import BaseCommand
 from django_apscheduler.jobstores import DjangoJobStore
 from django_apscheduler.models import DjangoJobExecution
 
+from news.models import Post, Category, PostCategory
+
 logger = logging.getLogger(__name__)
 
 
 # наша задача по выводу текста на экран
 def my_job():
-    #  Your job processing logic here...
-    print('hello from job')
+    today = timezone.now()
+    last_week = today - datetime.timedelta(days=7)
+    print(last_week)
+    posts = Post.objects.filter(time_create__gte=last_week)
+    posts_id = list(posts.values_list('category', flat=True))
+    print(f'id постов - {posts_id}')
+
+    # categories = set(posts.values_list('categories_post__category_name', flat=True))
+    # subscribers = set(Category.objects.filter(category_name__in=categories).values_list('subscribers__email', flat=True))
 
 
 # функция, которая будет удалять неактуальные задачи

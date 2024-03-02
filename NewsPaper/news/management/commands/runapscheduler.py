@@ -9,8 +9,12 @@ from apscheduler.triggers.cron import CronTrigger
 from django.core.management.base import BaseCommand
 from django_apscheduler.jobstores import DjangoJobStore
 from django_apscheduler.models import DjangoJobExecution
+from django.template.loader import render_to_string
+from django.core.mail import EmailMultiAlternatives, send_mail
 
-from news.models import Post, Category, PostCategory
+from news.models import Post, Category, UserCategory
+from django.contrib.auth.models import User
+from NewsPaper.settings import SITE_URL, DEFAULT_FROM_EMAIL
 
 logger = logging.getLogger(__name__)
 
@@ -19,13 +23,49 @@ logger = logging.getLogger(__name__)
 def my_job():
     today = timezone.now()
     last_week = today - datetime.timedelta(days=7)
-    print(last_week)
     posts = Post.objects.filter(time_create__gte=last_week)
-    posts_id = list(posts.values_list('category', flat=True))
-    print(f'id постов - {posts_id}')
+    print(posts)
+    # posts_id = list(posts.values_list('id', flat=True))
+    # category_id = list(posts.values_list('category', flat=True))
 
-    # categories = set(posts.values_list('categories_post__category_name', flat=True))
-    # subscribers = set(Category.objects.filter(category_name__in=categories).values_list('subscribers__email', flat=True))
+    # post_category = []
+    # for post in posts_id:
+    #     post_category.append((list(Post.objects.filter(id=post).values_list('category', flat=True)), post))
+    # print(f'(id_поста, id_категории) - {post_category}')
+
+    categories = set(posts.values_list('category__category_name', flat=True))
+    subs = set(Category.objects.filter(category_name__in=categories).values_list('usercategory__user', flat=True))
+    valid_subs = set(User.objects.filter(id__in=subs).values_list('email', flat=True))
+    print(f'categories - {categories}\n, subs - {subs}\n, valid_subs - {valid_subs}')
+
+    for email in valid_subs:
+        sub_idx = User.objects.filter(email=email).first().id
+        category_lst = list(UserCategory.objects.filter(user=sub_idx).values_list('category', flat=True))
+        print(f'category_lst - {category_lst}')
+
+        for ctg in category_lst:
+            valid_posts = list(posts.filter(category=ctg))
+            print(f'valid_posts - {valid_posts}')
+
+            html_content = render_to_string(
+                'post_week.html',
+                {
+                    'link': SITE_URL,
+                    'posts': posts,
+
+                }
+            )
+
+            msg = EmailMultiAlternatives(
+                subject='Новости за неделю',
+                body='',
+                from_email=DEFAULT_FROM_EMAIL,
+                to=[email],
+            )
+
+            msg.attach_alternative(html_content, 'text/html')
+            msg.send()
+    print('Все отправлено')
 
 
 # функция, которая будет удалять неактуальные задачи
@@ -44,7 +84,7 @@ class Command(BaseCommand):
         # добавляем работу нашему задачнику
         scheduler.add_job(
             my_job,
-            trigger=CronTrigger(second="*/10"),
+            trigger=CronTrigger(day_of_week="mon", hour="00", minute="00"),
             # То же, что и интервал, но задача тригера таким образом более понятна django
             id="my_job",  # уникальный айди
             max_instances=1,

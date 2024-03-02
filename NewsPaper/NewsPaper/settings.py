@@ -166,7 +166,7 @@ ACCOUNT_AUTHENTICATION_METHOD = 'email'
 ACCOUNT_FORMS = {'signup': 'sign.models.BasicSignupForm'}
 ACCOUNT_EMAIL_VERIFICATION = "mandatory"
     # Для отображения сообщений в терминале, без отправления их на почту
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+# EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 EMAIL_HOST = 'smtp.yandex.ru'
 EMAIL_PORT = 465

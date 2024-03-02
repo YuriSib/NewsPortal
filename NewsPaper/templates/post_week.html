@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Уведомление</title>
+</head>
+<body>
+    <h2>Здравствуйте! За последнюю неделю на вашим подпискам появились новые посты:</h2>
+    {% for post in posts %}
+        {% if post.write_type == "NE" %}
+            <p><a href="{{ link }}/news/{{ post.id }}">{{ post.title }}</a></p>
+        {% else %}
+            <p><a href="{{ link }}/article/{{ post.id }}">{{ post.title }}</a></p>
+        {% endif %}
+    {% endfor %}
+</body>
+</html>

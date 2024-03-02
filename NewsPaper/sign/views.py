@@ -19,8 +19,9 @@ class PersonalClassView(LoginRequiredMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['is_not_subscriber'] = self.request.user not in self.category.subscribers.all()
-        context['category'] = self.category
+        print(f"self.request = {self.request.user.id}")
+        # context['is_not_subscriber'] = self.request.user not in self.category.subscribers.all()
+        # context['category'] = self.category
         return context
 
 

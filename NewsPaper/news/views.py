@@ -1,7 +1,7 @@
 import datetime
 from datetime import date
 
-from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
+from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView, View
 from django.contrib.auth.models import User
 from django.shortcuts import render
 from django.urls import reverse_lazy
@@ -11,24 +11,22 @@ from django.template.loader import render_to_string
 from django.core.mail import EmailMultiAlternatives, mail_managers, send_mail
 from django.shortcuts import get_object_or_404
 from django.shortcuts import redirect
+from django.http import HttpResponse
 
 from NewsPaper.settings import EMAIL_HOST_USER
 from .models import Post, UserCategory, Category, Author
 from .filters import PostFilter
 from .forms import PostForm
+from .tasks import hello, printer
 
 from django.db.models.signals import post_save
 
 
-# def notify_about_new_post(sender, instance, created, **kwargs):
-#     mail_managers(
-#         subject=f'{instance.author} {instance.title}',
-#         message=instance.content,
-#     )
-#     print(f'{instance.author} {instance.title}')
-#
-#
-# post_save.connect(notify_about_new_post, sender=Post)
+class IndexView(View):
+    def get(self, request):
+        printer.delay(10)
+        hello.delay()
+        return HttpResponse('Hello!')
 
 
 class NewsList(ListView):

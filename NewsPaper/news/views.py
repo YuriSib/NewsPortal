@@ -17,16 +17,16 @@ from NewsPaper.settings import EMAIL_HOST_USER
 from .models import Post, UserCategory, Category, Author
 from .filters import PostFilter
 from .forms import PostForm
-from .tasks import hello, printer
+from .tasks import new_post
 
 from django.db.models.signals import post_save
 
 
-class IndexView(View):
-    def get(self, request):
-        printer.delay(10)
-        hello.delay()
-        return HttpResponse('Hello!')
+# class IndexView(View):
+#     def get(self, request):
+#         printer.apply_async([10], countdown=5)
+#         hello.delay()
+#         return HttpResponse('Hello!')
 
 
 class NewsList(ListView):
@@ -127,10 +127,11 @@ class NewsCreate(PermissionRequiredMixin, CreateView):
         date_create = date.today()
         date_list = [dt.strftime("%Y-%m-%d") for dt in Post.objects.filter(author=author_id).values_list('time_create', flat=True)]
         print(f'post = {post}, author_id = {author_id}, date_create = {date_create}, date_list = {date_list}')
-        print(f'Количество публикаций пользователя {self.request.user} - {date_list.count(date_list[-1])}')
-        if date_list.count(date_list[-1]) <= 3:
+        if date_list.count(date_create) <= 15:
+            print(f'Публикаций пользователя {self.request.user} за сегодня - {date_list.count(date_create)} шт.')
             post.save()
             print('Пост сохранен')
+            new_post.delay(post.pk)
             return super().form_valid(form)
         else:
             print('Пост не сохранен')

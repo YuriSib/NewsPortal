@@ -25,8 +25,8 @@ def send_notifications(preview, pk, title, subscribers):
         to=subscribers,
     )
 
-    msg.attach_alternative(html_content, 'text/html')
-    msg.send()
+    # msg.attach_alternative(html_content, 'text/html')
+    # msg.send()
 
 
 @receiver(m2m_changed, sender=PostCategory)

@@ -25,13 +25,6 @@ def my_job():
     last_week = today - datetime.timedelta(days=7)
     posts = Post.objects.filter(time_create__gte=last_week)
     print(posts)
-    # posts_id = list(posts.values_list('id', flat=True))
-    # category_id = list(posts.values_list('category', flat=True))
-
-    # post_category = []
-    # for post in posts_id:
-    #     post_category.append((list(Post.objects.filter(id=post).values_list('category', flat=True)), post))
-    # print(f'(id_поста, id_категории) - {post_category}')
 
     categories = set(posts.values_list('category__category_name', flat=True))
     subs = set(Category.objects.filter(category_name__in=categories).values_list('usercategory__user', flat=True))

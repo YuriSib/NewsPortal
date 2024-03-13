@@ -12,6 +12,9 @@ from django.core.mail import EmailMultiAlternatives, mail_managers, send_mail
 from django.shortcuts import get_object_or_404
 from django.shortcuts import redirect
 from django.http import HttpResponse
+from django.core.cache import cache
+
+from django.views.decorators.cache import cache_page
 
 from NewsPaper.settings import EMAIL_HOST_USER
 from .models import Post, UserCategory, Category, Author
@@ -19,14 +22,10 @@ from .filters import PostFilter
 from .forms import PostForm
 from .tasks import new_post
 
-from django.db.models.signals import post_save
 
-
-# class IndexView(View):
-#     def get(self, request):
-#         printer.apply_async([10], countdown=5)
-#         hello.delay()
-#         return HttpResponse('Hello!')
+@cache_page(100)
+def view(request):
+    ...
 
 
 class NewsList(ListView):
@@ -84,6 +83,18 @@ class NewsDetail(DetailView):
     template_name = 'a_news.html'
     # Название объекта, в котором будет выбранный пользователем продукт
     context_object_name = 'A_news'
+    queryset = Post.objects.all()
+    print(queryset)
+
+    def get_object(self, *args, **kwargs):
+        obj = cache.get(f'news-{self.kwargs["pk"]}', None)
+        print(self.kwargs["pk"], obj)
+
+        if not obj:
+            obj = super().get_object(queryset=self.queryset)
+            cache.set(f'news-{self.kwargs["pk"]}', obj)
+
+        return obj
 
 
 class ArticleList(ListView):

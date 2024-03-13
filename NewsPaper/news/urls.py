@@ -5,9 +5,11 @@ from .views import (
    ArticleEdit, CategoryListView, subscribe, to_many_post
 )
 
+from django.views.decorators.cache import cache_page
+
 
 urlpatterns = [
-   # path('', NewsList.as_view()),
+   path('', NewsList.as_view()),
 
    path('news/', NewsList.as_view(), name='news_list'),
    path('news/<int:pk>', NewsDetail.as_view(), name='a_news'),

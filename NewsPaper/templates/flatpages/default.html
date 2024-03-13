@@ -8,11 +8,13 @@
         <title>Bare - Start Bootstrap Template</title>
 
         {% load static %}
+        {% load cache %}
         <!-- Core theme CSS (includes Bootstrap)-->
         <link href="{% static 'css/styles.css' %}" rel="stylesheet" />
     </head>
     <body>
         <!-- Responsive navbar-->
+        {% cache 100 navbar %}
         <nav class="navbar navbar-expand-lg navbar-dark bg-dark static-top">
           <div class="container">
               <a class="navbar-brand" href="#">Django flatpages</a>
@@ -50,11 +52,15 @@
                       <li class="nav-item active">
                           <a class="nav-link" href="{% url 'logout_confirm' %}">Выйти</a>
                       </li>
+                      <li class="nav-item active">
+                          <p style="text-align: right;"><span style="text-align: right; color: #0000ff;">{{ user }}</span></p>
+                      </li>
                   </ul>
                   {% endif %}
               </div>
           </div>
         </nav>
+        {% endcache %}
         <!-- Page content-->
         <div class="container">
             <div class="row">

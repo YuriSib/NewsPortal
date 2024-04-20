@@ -1,5 +1,6 @@
 import datetime
 from datetime import date
+import logging
 
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView, View
 from django.contrib.auth.models import User
@@ -21,6 +22,9 @@ from .models import Post, UserCategory, Category, Author
 from .filters import PostFilter
 from .forms import PostForm
 from .tasks import new_post
+
+
+logger = logging.getLogger(__name__)
 
 
 @cache_page(100)
@@ -89,6 +93,7 @@ class NewsDetail(DetailView):
     def get_object(self, *args, **kwargs):
         obj = cache.get(f'news-{self.kwargs["pk"]}', None)
         print(self.kwargs["pk"], obj)
+        logger.error('Hello!')
 
         if not obj:
             obj = super().get_object(queryset=self.queryset)
